@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>தொல்காப்பியச் செயலி</title>
+    <style>
+        body { font-family: 'Latha', 'Arial', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .question-box { margin-bottom: 20px; border: 1px solid #e1e4e8; padding: 15px; border-radius: 8px; background-color: #fff; }
+        .question-text { font-size: 1.1em; font-weight: bold; color: #333; margin-bottom: 10px; }
+        .options label { display: block; padding: 8px; cursor: pointer; border-radius: 4px; transition: background 0.2s; }
+        .options label:hover { background-color: #f1f8ff; }
+        button { display: block; width: 100%; padding: 15px; background-color: #28a745; color: white; font-size: 1.1em; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+        button:hover { background-color: #218838; }
+        #result { text-align: center; font-size: 1.2em; margin-top: 20px; font-weight: bold; }
+        .correct { color: green; }
+        .wrong { color: red; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>தொல்காப்பியம் வினாடி வினா</h1>
+    <div id="quiz"></div>
+    <button onclick="calculateScore()">விடை காண்க</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    // இங்குதான் நீங்கள் உங்கள் கேள்விகளை மாற்ற வேண்டும்
+    const quizData = [
+        {
+            question: "1. தொல்காப்பியம் எத்தனை அதிகாரங்களைக் கொண்டுள்ளது?",
+            a: "இரண்டு",
+            b: "மூன்று",
+            c: "நான்கு",
+            d: "ஐந்து",
+            correct: "b"
+        },
+        {
+            question: "2. தொல்காப்பியர் எக்காலத்தைச் சேர்ந்தவர்?",
+            a: "சங்க காலம்",
+            b: "இடைக்காலம்",
+            c: "தற்காலம்",
+            d: "பல்லவர் காலம்",
+            correct: "a"
+        },
+        {
+            question: "3. எழுத்ததிகாரத்தில் உள்ள இயல்கள் எத்தனை?",
+            a: "ஒன்பது",
+            b: "பத்து",
+            c: "எட்டு",
+            d: "ஏழு",
+            correct: "a"
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz');
+    const resultContainer = document.getElementById('result');
+
+    function loadQuiz() {
+        let output = [];
+        quizData.forEach((data, index) => {
+            output.push(
+                `<div class="question-box">
+                    <div class="question-text">${data.question}</div>
+                    <div class="options">
+                        <label><input type="radio" name="question${index}" value="a"> ${data.a}</label>
+                        <label><input type="radio" name="question${index}" value="b"> ${data.b}</label>
+                        <label><input type="radio" name="question${index}" value="c"> ${data.c}</label>
+                        <label><input type="radio" name="question${index}" value="d"> ${data.d}</label>
+                    </div>
+                </div>`
+            );
+        });
+        quizContainer.innerHTML = output.join('');
+    }
+
+    function calculateScore() {
+        let score = 0;
+        quizData.forEach((data, index) => {
+            const selector = `input[name="question${index}"]:checked`;
+            const userAnswer = (document.querySelector(selector) || {}).value;
+            if (userAnswer === data.correct) {
+                score++;
+            }
+        });
+        resultContainer.innerHTML = `மொத்த கேள்விகள்: ${quizData.length} <br> உங்கள் மதிப்பெண்: ${score}`;
+        
+        // முடிவுகளைக் காட்டும்போது மேலே ஸ்க்ரோல் செய்யவும்
+        resultContainer.scrollIntoView({behavior: "smooth"});
+    }
+
+    // பக்கத்தை ஏற்றும்போது வினாடி வினாவைத் தொடங்கு
+    loadQuiz();
+</script>
+
+</body>
+</html>
