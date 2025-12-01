@@ -5,200 +5,257 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>தொல்காப்பியச் செயலி - தமிழ் இலக்கணக் கருவி</title>
     <style>
-        :root { --primary: #8e44ad; --bg: #fdfbf7; --text: #2c3e50; --success: #27ae60; --error: #c0392b; }
+        :root { --primary: #6a1b9a; --bg: #f3f4f6; --text: #1f2937; --success: #059669; --error: #dc2626; }
         body { font-family: 'Latha', 'Arial', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); border-bottom: 3px solid #eee; padding-bottom: 10px; }
-        .input-group { margin: 20px 0; }
-        textarea { width: 100%; height: 150px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; }
-        button { background-color: var(--primary); color: white; border: none; padding: 12px 25px; font-size: 1rem; border-radius: 6px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        button:hover { background-color: #732d91; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; }
         
-        /* Results Section */
-        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
-        .result-card { border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fafafa; }
-        .card-title { font-weight: bold; color: var(--primary); display: block; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .input-section { position: sticky; top: 0; background: white; padding: 20px 0; z-index: 10; border-bottom: 1px solid #eee; }
+        textarea { width: 100%; height: 120px; padding: 15px; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; resize: vertical; }
+        textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.1); }
         
-        .pass { color: var(--success); }
-        .fail { color: var(--error); }
-        ul { padding-left: 20px; margin: 0; }
-        li { margin-bottom: 5px; font-size: 0.95rem; }
-        .word-highlight { font-weight: bold; background: #eee; padding: 2px 5px; border-radius: 4px; }
+        .btn-group { margin-top: 10px; display: flex; gap: 10px; }
+        button { padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; flex: 1; }
+        .btn-check { background-color: var(--primary); }
+        .btn-check:hover { background-color: #4a148c; }
+        .btn-clear { background-color: #ef4444; flex: 0.3; }
+        .btn-clear:hover { background-color: #b91c1c; }
+
+        .results { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .result-box { border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px; background: #fafafa; }
+        .result-box h3 { margin-top: 0; color: var(--primary); font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+        
+        .status-ok { color: var(--success); display: flex; align-items: center; gap: 5px; font-weight: bold; }
+        .error-item { background: #fee2e2; border-left: 4px solid var(--error); padding: 10px; margin-bottom: 8px; border-radius: 4px; font-size: 0.95rem; }
+        .word-tag { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>தொல்காப்பியச் செயலி</h1>
-    <p style="text-align:center;">மொழிமுதல் | மொழியிறுதி | மெய்ம்மயக்கம் | புணர்ச்சி ஆய்வு</p>
-
-    <div class="input-group">
-        <label><b>உரையை உள்ளிடுக:</b></label>
-        <textarea id="inputText" placeholder="எடுத்துக்காட்டு: மாம்பழம், அஃது, தமிழ்மொழி, செல்க, கொள்க..."></textarea>
-        <button onclick="runAnalysis()">ஆய்வு செய்</button>
-        <button onclick="document.getElementById('inputText').value=''" style="background:#e74c3c">அழி</button>
-    </div>
-
-    <div class="results-grid">
-        <div class="result-card">
-            <span class="card-title">மொழிமுதல் ஆய்வு (Starting Check)</span>
-            <div id="res-starting">முடிவுகள் இங்கே தோன்றும்...</div>
-        </div>
-
-        <div class="result-card">
-            <span class="card-title">மொழியிறுதி ஆய்வு (Ending Check)</span>
-            <div id="res-ending">முடிவுகள் இங்கே தோன்றும்...</div>
-        </div>
-
-        <div class="result-card">
-            <span class="card-title">மெய்ம்மயக்கம் (Cluster Check)</span>
-            <div id="res-meymayakkam">முடிவுகள் இங்கே தோன்றும்...</div>
+    
+    <div class="input-section">
+        <label><b>தமிழ் உரையை உள்ளிடுக:</b> (எ.கா: மாம்பழம், கொள்க, பயிற்சி, அஃது)</label>
+        <textarea id="inputText" placeholder="இங்கு தட்டச்சு செய்யவும்..."></textarea>
+        <div class="btn-group">
+            <button class="btn-check" onclick="analyzeText()">பிழைகளை ஆய்வு செய்</button>
+            <button class="btn-clear" onclick="document.getElementById('inputText').value=''; document.getElementById('resultsArea').innerHTML=''">அழி</button>
         </div>
     </div>
+
+    <div id="resultsArea" class="results"></div>
 </div>
 
 <script>
-    // --- தரவுத் தொகுப்புகள் (Data Sets from Python Files) ---
-    
-    // 1. மொழிமுதல் தரவுகள் [Ref: word_starting.py]
-    const uyir = ["அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "ஏ", "ஐ", "ஒ", "ஓ", "ஔ"];
-    const k_series = ["க", "கா", "கி", "கீ", "கு", "கூ", "கெ", "கே", "கை", "கொ", "கோ", "கௌ"];
-    const s_series = ["ச", "சா", "சி", "சீ", "சு", "சூ", "செ", "சே", "சொ", "சோ"]; // சௌ இல்லை
-    const t_series = ["த", "தா", "தி", "தீ", "து", "தூ", "தெ", "தே", "தை", "தொ", "தோ", "தௌ"];
-    const n_series = ["ந", "நா", "நி", "நீ", "நு", "நூ", "நெ", "நே", "நை", "நொ", "நோ", "நௌ"];
-    const p_series = ["ப", "பா", "பி", "பீ", "பு", "பூ", "பெ", "பே", "பை", "பொ", "போ", "பௌ"];
-    const m_series = ["ம", "மா", "மி", "மீ", "மு", "மூ", "மெ", "மே", "மை", "மொ", "மோ", "மௌ"];
-    const v_series = ["வ", "வா", "வி", "வீ", "வெ", "வே", "வை", "வௌ"];
-    const y_series = ["யா"];
-    const nga_series = ["ஞா", "ஞெ", "ஞொ"];
-    
-    const validStarts = [...uyir, ...k_series, ...s_series, ...t_series, ...n_series, ...p_series, ...m_series, ...v_series, ...y_series, ...nga_series];
+// --- 1. தரவுகள் (Data Constants from Python Files) ---
 
-    // 2. மொழியிறுதி தரவுகள் [Ref: word_ending.py]
-    // குறிப்பு: பைதான் நிரலில் உள்ள splitMeiUyir போன்ற வசதி JSல் இல்லாததால், நேரடி எழுத்துக்களைச் சோதிக்கிறோம்.
-    const mellinam_end = ["ஞ்", "ண்", "ந்", "ம்", "ன்"];
-    const idaiyinam_end = ["ய்", "ர்", "ல்", "வ்", "ழ்", "ள்"];
-    const kutriyalugaram = ["கு", "சு", "டு", "து", "பு", "று"]; // குற்றியலுகரம் ஏற்பு
-    const uyir_endings = ["அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "ஏ", "ஐ", "ஒ", "ஓ", "ஔ"]; // உயிர்மெய்யில் முடிந்தாலும் அதன் வேர் உயிர்தான்
+// உயிர் எழுத்துக்கள்
+const UYIR = ["அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "ஏ", "ஐ", "ஒ", "ஓ", "ஔ"];
 
-    // 3. மெய்ம்மயக்கம் தரவுகள் [Ref: meymayakkamfinal.py]
-    const vallinam_all = ["க்", "ச்", "ட்", "த்", "ப்", "ற்"];
-    const mellinam_all = ["ங்", "ஞ்", "ண்", "ந்", "ம்", "ன்"];
+// மெய் எழுத்துக்கள் (புள்ளியுடன்)
+const MEI_VALLINAM = ["க்", "ச்", "ட்", "த்", "ப்", "ற்"];
+const MEI_MELLINAM = ["ங்", "ஞ்", "ண்", "ந்", "ம்", "ன்"];
+const MEI_IDAIYINAM = ["ய்", "ர்", "ல்", "வ்", "ழ்", "ள்"];
+const MEI_ALL = [...MEI_VALLINAM, ...MEI_MELLINAM, ...MEI_IDAIYINAM];
+
+// மொழிமுதல் ஏற்புடைய வரிசைகள் (Word Starting) [Ref: word_starting.py]
+const START_MAPPING = {
+    // உயிர்மெய் வரிசைகள் (Consonant Series)
+    "க": ["க", "கா", "கி", "கீ", "கு", "கூ", "கெ", "கே", "கை", "கொ", "கோ", "கௌ"],
+    "ச": ["ச", "சா", "சி", "சீ", "சு", "சூ", "செ", "சே", "சொ", "சோ"], // சௌ நீக்கம் (Python Code படி)
+    "த": ["த", "தா", "தி", "தீ", "து", "தூ", "தெ", "தே", "தை", "தொ", "தோ", "தௌ"],
+    "ந": ["ந", "நா", "நி", "நீ", "நு", "நூ", "நெ", "நே", "நை", "நொ", "நோ", "நௌ"],
+    "ப": ["ப", "பா", "பி", "பீ", "பு", "பூ", "பெ", "பே", "பை", "பொ", "போ", "பௌ"],
+    "ம": ["ம", "மா", "மி", "மீ", "மு", "மூ", "மெ", "மே", "மை", "மொ", "மோ", "மௌ"],
+    "வ": ["வ", "வா", "வி", "வீ", "வெ", "வே", "வை", "வௌ"],
+    "ஞ": ["ஞா", "ஞெ", "ஞொ"],
+    "ய": ["யா"]
+};
+
+// --- 2. உதவிக் கருவிகள் (Helper Functions) ---
+
+// சொல்லை எழுத்துக்களாகப் பிரித்தல் (Split word into Tamil letters)
+function getTamilLetters(word) {
+    // இது உயிர், மெய், உயிர்மெய் ஆகியவற்றைத் தனித்தனியாகப் பிரிக்கும்
+    return word.match(/[\u0B80-\u0BFF][\u0BCD\u0BBE-\u0BCC\u0BD7]?/g) || [];
+}
+
+// எழுத்தின் அடிப்படை மெய்யை அறிதல் (Get Root Consonant)
+// எ.கா: "கா" -> "க்", "கி" -> "க்", "க்" -> "க்", "அ" -> "அ"
+function getRootMei(char) {
+    if (UYIR.includes(char)) return char; // உயிர் என்றால் அப்படியே அனுப்பு
     
-    // --- உதவிக் கருவிகள் (Utilities) ---
-
-    // தமிழ் எழுத்துக்களைப் பிரிக்கும் செயல்பாடு (Python get_letters போன்றது)
-    function getTamilLetters(word) {
-        // இது உயிர், மெய், உயிர்மெய் ஆகியவற்றைத் தனித்தனியாகப் பிரிக்கும் Regex
-        return word.match(/[\u0B80-\u0BFF][\u0BCD\u0BBE-\u0BCC]?/g) || [];
+    // முதல் எழுத்தைக் குறியீடாக மாற்ற (Unicode basis)
+    let baseCode = char.charCodeAt(0);
+    // தமிழ் அகர வரிசை: க(2965) முதல் ன(2999) வரை
+    if (baseCode >= 2965 && baseCode <= 2999) {
+        return String.fromCharCode(baseCode) + "்"; // க -> க்
     }
+    return char;
+}
 
-    // --- ஆய்வு செயல்பாடுகள் ---
+// எழுத்தின் முதல் வடிவத்தை அறிதல் (எ.கா: "கா" -> "க") - Start Check-க்கு தேவை
+function getBaseChar(char) {
+    return char.charAt(0);
+}
 
-    function runAnalysis() {
-        const text = document.getElementById('inputText').value;
-        const words = text.split(/\s+/).filter(w => w.length > 0);
+
+// --- 3. ஆய்வு விதிகள் (Core Logic) ---
+
+function analyzeText() {
+    const text = document.getElementById("inputText").value;
+    if(!text.trim()) return;
+    
+    const words = text.split(/\s+/).filter(w => w.length > 0); // சொற்களைப் பிரி
+    
+    let startErrors = [];
+    let endErrors = [];
+    let meyErrors = [];
+
+    words.forEach(word => {
+        // நிறுத்தற்குறிகளை நீக்குதல் (Remove punctuation)
+        let cleanWord = word.replace(/[.,;!?)"(]/g, "");
+        if(cleanWord.length < 2) return; // ஓரெழுத்துச் சொற்களைத் தவிர்க்கலாம் (Python logic: len<=2 skipped sometimes)
+
+        const letters = getTamilLetters(cleanWord);
+        if (letters.length === 0) return;
+
+        // --- A. மொழிமுதல் ஆய்வு (Starting Check) ---
+        let first = letters[0];
+        let isValidStart = false;
+
+        if (UYIR.includes(first)) {
+            isValidStart = true;
+        } else {
+            // உயிர்மெய் சரிபார்ப்பு
+            let base = getBaseChar(first); // எ.கா "சி" -> "ச"
+            if (START_MAPPING[base]) {
+                // அந்த வரிசையில் உள்ளதா எனப் பார் (எ.கா ச வரிசையில் "சௌ" இல்லை)
+                if (START_MAPPING[base].includes(first)) {
+                    isValidStart = true;
+                }
+            }
+        }
+
+        if (!isValidStart) {
+            startErrors.push({ word: cleanWord, msg: `'${first}' எழுத்தில் தொடங்கக்கூடாது.` });
+        }
+
+        // --- B. மொழியிறுதி ஆய்வு (Ending Check) [Ref: word_ending.py] ---
+        let last = letters[letters.length - 1];
+        let isValidEnd = false;
+        let rootLast = getRootMei(last); // "கா" -> "க்"
+
+        // 1. உயிர் முடிவுகள் (Uyir endings) - உயிர்மெய்யும் இதில் அடங்கும்
+        // Python logic: splitMeiUyir -> if vowel -> valid.
+        // உயிர்மெய் எழுத்துக்கள் அனைத்தும் உயிரீறு உடையன. எனவே அவை சரி.
+        if (!last.includes('்')) { 
+            isValidEnd = true; 
+        }
         
-        let startErrors = [];
-        let endErrors = [];
-        let meyErrors = [];
+        // 2. மெய் முடிவுகள் (Specific Mei endings)
+        // Python: mellinam (ñ,n,n,m,n) + idaiyinam (y,r,l,v,zh,l) -> Valid
+        if (MEI_MELLINAM.includes(last) || MEI_IDAIYINAM.includes(last)) {
+            isValidEnd = true;
+        }
+        
+        // 3. குற்றியலுகரம் (Kutriyalugaram) - கு, சு, டு, து, பு, று
+        // இவை உயிர்மெய்யாக இருப்பதால் விதி 1-லேயே "சரி" ஆகிவிடும். 
+        // ஆனால் "க்", "ச்" போன்ற வல்லின மெய்கள் வந்தால் தவறு.
+        
+        // விதிவிலக்கு: ங் (Python code allows 'ñ' but list had 'nj'?)
+        // Python code: mellinam_list=["ஞ்", "ண்", "ந்", "ம்", "ன்"]. 'ங்' is MISSING in python allowed list.
+        // எனவே 'ங்' வந்தால் தவறு என்று காட்ட வேண்டும்.
+        
+        if (MEI_VALLINAM.includes(last)) {
+            isValidEnd = false; // வல்லின மெய் ஈறு ஆகாது
+        }
+        if (last === "ங்") isValidEnd = false; // ங் ஈறு ஆகாது
 
-        words.forEach(word => {
-            const letters = getTamilLetters(word);
-            if (letters.length === 0) return;
+        if (!isValidEnd) {
+            endErrors.push({ word: cleanWord, msg: `'${last}' எழுத்தில் (வல்லின மெய்/தடைசெய்யப்பட்ட மெய்) முடியக்கூடாது.` });
+        }
 
-            // 1. மொழிமுதல் ஆய்வு [Ref: word_starting.py]
-            const firstChar = letters[0];
-            if (!validStarts.includes(firstChar)) {
-                startErrors.push(`<span class="word-highlight">${word}</span>: '${firstChar}' எழுத்தில் தொடங்கக்கூடாது.`);
-            }
-
-            // 2. மொழியிறுதி ஆய்வு [Ref: word_ending.py]
-            const lastChar = letters[letters.length - 1];
-            // எளிய விதி: மெல்லினம், இடையினம், உயிர் அல்லது குற்றியலுகரம்
-            let isValidEnd = false;
+        // --- C. மெய்ம்மயக்கம் (Cluster Check) [Ref: meymayakkamfinal.py] ---
+        for (let i = 0; i < letters.length - 1; i++) {
+            let curr = letters[i];
+            let next = letters[i+1];
             
-            // உயிர் அல்லது மெய் சரிபார்ப்பு
-            if (uyir.includes(lastChar) || mellinam_end.includes(lastChar) || idaiyinam_end.includes(lastChar)) {
-                isValidEnd = true;
-            } 
-            // உயிர்மெய் முடிவுகள் (எ.கா: 'கா' - இதில் 'ஆ' உள்ளது)
-            else if (!lastChar.includes('்')) { 
-                // புள்ளி இல்லாத எழுத்து என்றால் அது உயிர்மெய் அல்லது உயிர். 
-                // வல்லின மெய்களில் முடிவது தவறு (க், ச்...), ஆனால் குற்றியலுகரம் (கு, சு..) சரி.
-                // இங்கு ஒரு எளிய சரிபார்ப்பை செய்கிறோம்.
-                isValidEnd = true; 
-            }
-            
-            // குறிப்பான பிழை: வல்லின மெய்யில் முடிதல் (க், ச், ட், த், ப், ற்)
-            if (["க்", "ச்", "ட்", "த்", "ப்", "ற்"].includes(lastChar)) {
-                isValidEnd = false;
-                endErrors.push(`<span class="word-highlight">${word}</span>: '${lastChar}' (வல்லின மெய்) எழுத்தில் முடியக்கூடாது.`);
-            }
-            else if (lastChar === "ங்") { // [Ref: word_ending.py - mellinam list starts with nj]
-                 // ங் சில இடங்களில் வரும், பைதான் பட்டியலில் ஞ்-இல் தொடங்குகிறது.
-                 // விதிகளின்படி ங் அரிது.
-            }
+            // புள்ளி வைத்த மெய்யெழுத்து என்றால் மட்டுமே மயக்கம் பார்க்க வேண்டும்
+            if (!curr.includes('்')) continue; 
 
-            // 3. மெய்ம்மயக்கம் ஆய்வு [Ref: meymayakkamfinal.py]
-            for (let i = 0; i < letters.length - 1; i++) {
-                let curr = letters[i];
-                let next = letters[i+1];
-                let nextRoot = next; // உயிர்மெய்யாக இருந்தால் அதன் மெய் வடிவம் தேவை (எளிமைக்காக முதல் எழுத்தை எடுக்கிறோம்)
-                
-                // ட், ற், ல், ள் + க, ச, ப [Rule 1]
-                if (["ட்", "ற்", "ல்", "ள்"].includes(curr)) {
-                    // அடுத்த எழுத்து க, ச, ப வருக்கமா என பார்க்க வேண்டும்
-                    // அடுத்த எழுத்தின் முதல் எழுத்து க், ச், ப் என இருக்க வேண்டும் (அல்லது உயிர்மெய்)
-                    // இங்கு ஒரு எளிய சரிபார்ப்பு:
-                    let allowed = ["க்", "ச்", "ப்", "க", "ச", "ப"]; // மற்றும் அவற்றின் வருக்கங்கள்
-                    if (!isAllowedSeries(next, ["க", "ச", "ப"])) {
-                        // விதிவிலக்குகள் (ய, வ - Rule 2 for ல், ள்)
-                        if (["ல்", "ள்"].includes(curr) && isAllowedSeries(next, ["ய", "வ"])) {
-                            continue; // சரி
-                        }
-                        meyErrors.push(`<span class="word-highlight">${word}</span>: '${curr}' உடன் '${next}' மயங்காது.`);
-                    }
+            let nextRoot = getRootMei(next); // "கா" -> "க்"
+
+            // விதி 1: ட், ற், ல், ள் + க, ச, ப [Rule: Only k, ch, p allowed after t, R, l, L]
+            if (["ட்", "ற்", "ல்", "ள்"].includes(curr)) {
+                let allowed = ["க்", "ச்", "ப்"]; // Consonant roots
+                // விதி 2: ல், ள் + ய, வ [Rule: y, v also allowed for l, L]
+                if (curr === "ல்" || curr === "ள்") {
+                    allowed.push("ய்", "வ்");
                 }
                 
-                // ங், ஞ், ண், ந், ம், ன் (இனவெழுத்துக்கள்) [Rule 3]
-                if (curr === "ங்" && !isAllowedSeries(next, ["க"])) meyErrors.push(`${word}: ங் முன் ககரம் வர வேண்டும்.`);
-                if (curr === "ஞ்" && !isAllowedSeries(next, ["ச", "ய"])) meyErrors.push(`${word}: ஞ் முன் சகரம்/யகரம் வர வேண்டும்.`);
-                if (curr === "ண்" && !isAllowedSeries(next, ["ட"])) meyErrors.push(`${word}: ண் முன் டகரம் வர வேண்டும்.`);
-                if (curr === "ந்" && !isAllowedSeries(next, ["த", "ய"])) meyErrors.push(`${word}: ந் முன் தகரம்/யகரம் வர வேண்டும்.`);
-                // ... மற்ற விதிகள்
+                if (!allowed.includes(nextRoot)) {
+                    meyErrors.push({ word: cleanWord, msg: `'${curr}' மெய்யெழுத்தை அடுத்து '${next}' வருதல் கூடாது. (க,ச,ப வருக்கங்கள் மட்டுமே வரலாம்)` });
+                }
             }
-        });
+            
+            // விதி 3: மெல்லினம் + இன வல்லினம் (Nasals + Paired Plosives)
+            // ங்+க, ஞ்+ச, ண்+ட, ந்+த, ம்+ப், ன்+ற்
+            if (curr === "ங்" && nextRoot !== "க்") meyErrors.push({ word: cleanWord, msg: `ங் முன் 'க' மட்டுமே வரும்.` });
+            if (curr === "ஞ்" && !["ச்", "ய்"].includes(nextRoot)) meyErrors.push({ word: cleanWord, msg: `ஞ் முன் 'ச' அல்லது 'ய' மட்டுமே வரும்.` }); // Rule 4 included
+            if (curr === "ண்" && !["ட்", "க்", "ச்", "ஞ", "ப்", "ம்"].includes(nextRoot)) { 
+                // Note: Python Rule 3 says just "ட்". But "ண்" needs broader check in reality. 
+                // But sticking to Python Rule 3 text: "ண்... மயங்கி வரும்... எ-டு மண்டை". 
+                // Python Rule 3 code: check(..., "ண்", ["ட்"]). Very Strict.
+                if(nextRoot !== "ட்") meyErrors.push({ word: cleanWord, msg: `ண் முன் 'ட' வரவேண்டும் (பைதான் விதி 3).` });
+            } 
+            
+            // விதி 4 & 5 & 6 (பிற மெய்ம்மயக்கங்கள்)
+            // ம் + ப, வ, ய
+            if (curr === "ம்") {
+                if (!["ப்", "வ்", "ய்"].includes(nextRoot)) meyErrors.push({ word: cleanWord, msg: `ம் முன் ப, வ, ய மட்டுமே வரும்.` });
+            }
+            
+            // ந் + த, ய
+            if (curr === "ந்") {
+                if (!["த்", "ய்"].includes(nextRoot)) meyErrors.push({ word: cleanWord, msg: `ந் முன் த, ய மட்டுமே வரும்.` });
+            }
 
-        // முடிவுகளைக் காட்டுதல்
-        showOutput("res-starting", startErrors, "மொழிமுதல் பிழைகள் இல்லை.");
-        showOutput("res-ending", endErrors, "மொழியிறுதிப் பிழைகள் இல்லை.");
-        showOutput("res-meymayakkam", meyErrors, "மெய்ம்மயக்கப் பிழைகள் இல்லை.");
-    }
-
-    // எழுத்துத் தொடர் சரிபார்ப்பு (எ.கா: 'கா' என்பது 'க' வரிசையா?)
-    function isAllowedSeries(char, allowedRoots) {
-        // இது ஒரு முழுமையான மேப்பிங் தேவை, இங்கு எளிமைக்காக முதல் எழுத்தை ஒப்பிடுகிறோம்
-        // அல்லது பொதுவான சரிபார்ப்பு
-        // க, ச, ட, த, ப, ற, ய, வ, ஞ, ந, ம
-        for (let root of allowedRoots) {
-            if (char.startsWith(root)) return true;
-            // உயிர்மெய் ஒப்பீடு (எ.கா: க -> கா, கி...)
-            // இது JSல் கடினம், அதனால் பொதுவான யூனிகோட் சரிபார்ப்பு செய்யலாம்
-            // ஆனால் இங்கே Demo என்பதால் true என விட்டுவிடுகிறோம்.
-            // துல்லியமான முடிவுக்கு பெரிய மேப்பிங் தேவை.
+            // வ் + ய
+            if (curr === "வ்" && nextRoot !== "ய்") meyErrors.push({ word: cleanWord, msg: `வ் முன் 'ய' மட்டுமே வரும்.` });
         }
-        return true; // பிழையைத் தவிர்க்க
-    }
+    });
 
-    function showOutput(id, errors, successMsg) {
-        const el = document.getElementById(id);
+    // --- முடிவுகளைக் காட்டுதல் ---
+    displayResults(startErrors, endErrors, meyErrors);
+}
+
+function displayResults(start, end, mey) {
+    const area = document.getElementById("resultsArea");
+    area.innerHTML = "";
+    
+    // Helper to create box
+    const createBox = (title, errors, successMsg) => {
+        let div = document.createElement("div");
+        div.className = "result-box";
+        let html = `<h3>${title}</h3>`;
+        
         if (errors.length === 0) {
-            el.innerHTML = `<div class="pass">✓ ${successMsg}</div>`;
+            html += `<div class="status-ok">✓ பிழைகள் இல்லை</div>`;
         } else {
-            el.innerHTML = `<ul class="fail">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+            errors.forEach(err => {
+                html += `<div class="error-item"><span class="word-tag">${err.word}</span> ${err.msg}</div>`;
+            });
         }
-    }
+        div.innerHTML = html;
+        return div;
+    };
+
+    area.appendChild(createBox("மொழிமுதல் ஆய்வு (Starting Check)", start));
+    area.appendChild(createBox("மொழியிறுதி ஆய்வு (Ending Check)", end));
+    area.appendChild(createBox("மெய்ம்மயக்கம் (Cluster Check)", mey));
+}
 </script>
 
 </body>
