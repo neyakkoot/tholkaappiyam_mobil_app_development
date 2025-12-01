@@ -3,388 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> தொல்காப்பியச் செயலி (பதிப்பு 2.0)</title>
+    <title>தமிழ் பிழை திருத்தி (Tamil Grammar Checker)</title>
     <style>
-        :root { 
-            --primary: #004d40; --secondary: #00695c; --accent: #ffca28; 
-            --bg: #e0f2f1; --card-bg: #ffffff; --text: #263238; 
-            --success: #2e7d32; --error: #c62828; --info: #0277bd;
-        }
-        body { font-family: 'Latha', 'Arial', sans-serif; background-color: var(--bg); color: var(--text); padding: 0; margin: 0; line-height: 1.6; }
+        :root { --primary: #1a73e8; --success: #1e8e3e; --error: #d93025; --bg: #f8f9fa; --card: #ffffff; }
+        body { font-family: 'Latha', 'Arial', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: #202124; }
         
-        /* Layout */
-        .app-container { max-width: 1200px; margin: 20px auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; min-height: 95vh; display: flex; flex-direction: column; }
+        .container { max-width: 900px; margin: 0 auto; background: var(--card); padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         
-        /* Header */
-        header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; text-align: center; }
-        header h1 { margin: 0; font-size: 2.2rem; }
-        header p { margin: 5px 0 0; font-size: 1rem; opacity: 0.9; }
-        header .badge { background: var(--accent); color: var(--text); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 10px; }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #5f6368; margin-bottom: 30px; font-size: 0.95rem; }
 
-        /* Navigation Tabs */
-        .nav-tabs { display: flex; background: #b2dfdb; overflow-x: auto; }
-        .nav-tab { flex: 1; padding: 15px 10px; border: none; background: none; cursor: pointer; font-size: 1rem; font-weight: bold; color: var(--primary); transition: 0.3s; white-space: nowrap; border-bottom: 4px solid transparent; }
-        .nav-tab:hover { background: rgba(255,255,255,0.4); }
-        .nav-tab.active { background: var(--card-bg); border-bottom-color: var(--primary); color: var(--secondary); }
-
-        /* Content Sections */
-        .section-content { padding: 30px; display: none; animation: fadeIn 0.4s; }
-        .section-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Inputs */
-        .input-area { margin-bottom: 25px; }
-        textarea, input[type="text"] { width: 100%; padding: 15px; border: 2px solid #80cbc4; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; transition: 0.3s; }
-        textarea:focus, input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0, 77, 64, 0.2); }
+        /* Input Area */
+        .editor-box { position: relative; margin-bottom: 20px; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 2px solid #dadce0; border-radius: 8px; font-size: 1.2rem; line-height: 1.6; resize: vertical; box-sizing: border-box; transition: 0.3s; }
+        textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
         
-        button.run-btn { background-color: var(--secondary); color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
-        button.run-btn:hover { background-color: var(--primary); transform: translateY(-2px); }
+        .btn-check { background-color: var(--primary); color: white; padding: 12px 30px; border: none; border-radius: 24px; font-size: 1.1rem; font-weight: bold; cursor: pointer; float: right; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .btn-check:hover { background-color: #1557b0; transform: translateY(-1px); }
 
-        /* Result Cards */
-        .results-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 20px; }
+        /* Output Area */
+        .output-section { margin-top: 60px; display: none; }
+        .output-section.active { display: block; animation: fadeIn 0.5s; }
         
-        .card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #b2dfdb; padding-bottom: 10px; font-size: 1.2rem; }
-        
-        .data-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; }
-        .data-label { font-weight: bold; color: #555; }
-        .data-val { color: var(--primary); font-weight: bold; }
-        
-        .rule-item { background: #e0f2f1; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid var(--secondary); }
-        .rule-text { font-size: 0.95rem; color: #333; }
-        .sutra-ref { font-size: 0.8rem; background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+        .diff-view { background: #f1f3f4; padding: 20px; border-radius: 8px; font-size: 1.3rem; line-height: 1.8; margin-bottom: 20px; border-left: 5px solid var(--success); }
+        .correction { color: var(--success); font-weight: bold; text-decoration: underline; text-decoration-style: dotted; cursor: help; }
+        .error-mark { color: var(--error); text-decoration: line-through; margin-right: 5px; opacity: 0.7; font-size: 0.9em; }
 
-        /* Phonetics Grid */
-        .phonetic-grid { display: flex; flex-wrap: wrap; gap: 15px; }
-        .char-card { width: 120px; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .char-big { font-size: 2.5rem; color: var(--primary); display: block; font-weight: bold; }
-        .char-info { font-size: 0.85rem; color: #666; margin-top: 5px; }
+        .report-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-top: 20px; }
+        .report-title { font-weight: bold; color: #3c4043; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; display: block; }
+        .rule-item { margin-bottom: 8px; font-size: 0.95rem; color: #444; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 8px; }
+        .badge-sandhi { background: #e8f0fe; color: #1967d2; }
+        .badge-spell { background: #fce8e6; color: #c5221f; }
 
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header>
-        <h1>தொல்காப்பியச் செயலி <span class="badge">பதிப்பு 2.0</span></h1>
-        <p>நூல் மரபு | மொழி மரபு | பிறப்பியல் | புணரியல் (எழுத்ததிகாரம் முழுமை)</p>
-    </header>
+<div class="container">
+    <h1>தமிழ் பிழை திருத்தி</h1>
+    <p class="subtitle">சொற்பிழை | புணர்ச்சிப் பிழை | வல்லினம் மிகும் இடங்கள்</p>
 
-    <nav class="nav-tabs">
-        <button class="nav-tab active" onclick="showTab('tab-basic')">எழுத்து & ஒலிப்பு (Basic)</button>
-        <button class="nav-tab" onclick="showTab('tab-grammar')">மொழி மரபு & இலக்கணம்</button>
-        <button class="nav-tab" onclick="showTab('tab-sandhi')">புணர்ச்சி ஆய்வு (Sandhi)</button>
-        <button class="nav-tab" onclick="showTab('tab-pirappu')">பிறப்பியல் (Phonetics)</button>
-    </nav>
-
-    <div id="tab-basic" class="section-content active">
-        <div class="input-area">
-            <label><b>ஓர் எழுத்து அல்லது சொல்லை இடுக:</b></label>
-            <input type="text" id="basicInput" placeholder="எ.கா: அ, க், தமிழ், ஔவையார்...">
-            <button class="run-btn" onclick="analyzeBasic()">எழுத்து வகையறிய (நூல் மரபு)</button>
-        </div>
-        <div id="basicResults" class="results-box"></div>
+    <div class="editor-box">
+        <textarea id="inputText" placeholder="இங்குத் தட்டச்சு செய்க... (எ.கா: அந்த பையன் கடைக்கு சென்றான். அவன் மரம் வெட்டினான்.)"></textarea>
+        <button class="btn-check" onclick="correctText()">பிழைகளைத் திருத்து</button>
+        <div style="clear:both;"></div>
     </div>
 
-    <div id="tab-grammar" class="section-content">
-        <div class="input-area">
-            <label><b>சொல்லை இடுக (மொழி மரபு ஆய்வு):</b></label>
-            <input type="text" id="mozhiInput" placeholder="எ.கா: சக்கரம், டமாரம் (பிழை), பக்கம், வால்...">
-            <button class="run-btn" onclick="analyzeMozhiMarabu()">மொழி மரபு ஆய்வு செய்</button>
+    <div id="outputArea" class="output-section">
+        <h3 style="color:#5f6368;">திருத்தப்பட்ட வடிவம்:</h3>
+        <div id="correctedText" class="diff-view"></div>
+        
+        <div class="report-card">
+            <span class="report-title">திருத்த விவரங்கள்:</span>
+            <div id="reportList"></div>
         </div>
-        <div id="mozhiResults" class="results-box"></div>
     </div>
-
-    <div id="tab-sandhi" class="section-content">
-        <div class="input-area">
-            <label><b>புணர்ச்சி ஆய்வு (சொற்களை இடைவெளி விட்டுத் தரவும்):</b></label>
-            <textarea id="sandhiInput" style="height:100px;" placeholder="எ.கா: கல் தீது, ஒன்று பத்து, மரம் கிளை, வடக்கு கிழக்கு..."></textarea>
-            <button class="run-btn" onclick="analyzeSandhi()">புணர்ச்சி விதியைத் தேடு</button>
-        </div>
-        <div id="sandhiResults" class="results-box"></div>
-    </div>
-
-    <div id="tab-pirappu" class="section-content">
-        <div class="input-area">
-            <label><b>பிறப்பிடம் அறிய எழுத்துக்களை இடுக:</b></label>
-            <input type="text" id="pirappuInput" placeholder="எ.கா: க், ம், ப்...">
-            <button class="run-btn" onclick="analyzePirappiyal()">பிறப்பிடம் காட்டு</button>
-        </div>
-        <div id="pirappuResults" class="phonetic-grid" style="margin-top:20px;"></div>
-    </div>
-
 </div>
 
 <script>
-    // --- 1. தரவுகள் (DATA CONSTANTS) ---
-    // நூல் மரபு
-    const KURIL = ["அ", "இ", "உ", "எ", "ஒ"];
-    const NEDIL = ["ஆ", "ஈ", "ஊ", "ஏ", "ஐ", "ஓ", "ஔ"];
-    const UYIR = [...KURIL, ...NEDIL];
-    
+    // --- 1. தரவுகள் (Data) ---
+    const UYIR = ["அ", "ஆ", "இ", "ஈ", "உ", "ஊ", "ஏ", "ஐ", "ஒ", "ஓ", "ஔ"];
     const VALLINAM = ["க்", "ச்", "ட்", "த்", "ப்", "ற்"];
     const MELLINAM = ["ங்", "ஞ்", "ண்", "ந்", "ம்", "ன்"];
     const IDAIYINAM = ["ய்", "ர்", "ல்", "வ்", "ழ்", "ள்"];
-    const MEI = [...VALLINAM, ...MELLINAM, ...IDAIYINAM];
-    const AYTHAM = ["ஃ"];
-
-    // மொழி மரபு (Phonotactics)
-    // மொழி முதல் ஆகும் எழுத்துக்கள் (நூற்பா 26-33)
-    const VALID_STARTS_UYIR = UYIR; // 12 உயிரும் முதல் (நூற்பா 26)
-    // மெய்ம்முதல்: க, த, ந, ப, ம (எல்லா உயிரோடும்) (நூற்பா 28)
-    // ச (அ, ஐ, ஔ நீங்கலாக - தொல்காப்பியர் விதி. ஆனால் பிற்காலம் மாறியது. இங்கு தொல்காப்பிய விதி)
-    // வ (உ, ஊ, ஒ, ஓ வராது - நூற்பா 30)
-    // ஞ (ஆ, எ, ஒ மட்டும் - நூற்பா 31)
-    // ய (ஆ மட்டும் - நூற்பா 32)
     
-    // மெய்ம்மயக்கம் (நூல் மரபு 23-30)
-    const MEYMAYAKKAM_RULES = {
-        "ட்": ["க்", "ச்", "ப்"], "ற்": ["க்", "ச்", "ப்"], // ட,ற முன் க,ச,ப (நூற்பா 23)
-        "ல்": ["க்", "ச்", "ப்", "ய்", "வ்"], "ள்": ["க்", "ச்", "ப்", "ய்", "வ்"], // ல,ள முன் க,ச,ப,ய,வ (நூற்பா 24)
-        "ங்": ["க்"], "ஞ்": ["ச்", "ய்", "ஞ்"], "ந்": ["த்", "ய்", "ந்"], 
-        "ண்": ["ட்", "ண்", "க்", "ச்", "ஞ்", "ப்", "ம்", "ய", "வ"], // நூற்பா 26: ண,ன முன் க,ச,ஞ,ப,ம,ய,வ (7 எழுத்து)
-        "ன்": ["ற்", "ன்", "க்", "ச்", "ஞ்", "ப்", "ம்", "ய", "வ"], // நூற்பா 26
-        "ம்": ["ப்", "வ்", "ம்"], // நூற்பா 28: ம முன் வ வரும்
-        "ய்": ["க்", "ச்", "த்", "ப்", "ங்", "ஞ்", "ந்", "ம்", "ய்", "வ்"], // ய,ர,ழ முன் ஙகரமோடு (நூற்பா 29)
-        "ர்": ["க்", "ச்", "த்", "ப்", "ங்", "ஞ்", "ந்", "ம்", "ய்", "வ்", "ர்"],
-        "ழ்": ["க்", "ச்", "த்", "ப்", "ங்", "ஞ்", "ந்", "ம்", "ய்", "வ்", "ழ்"]
-    };
+    // வல்லினம் மிகும் சொற்கள் பட்டியல் (Trigger Words)
+    const VALLINAM_MIGUM_WORDS = [
+        "அந்த", "இந்த", "எந்த", "அப்ப", "இப்ப", "எப்ப", "அங்க", "இங்க", "எங்க", // சுட்டு/வினா
+        "என", "ஆக", "போய்", "போல", "கூட", // வினையெச்சம்/இடைச்சொல்
+        "பல", "சில" // அகர ஈறு (பொது)
+    ];
 
     // --- 2. உதவிக் கருவிகள் ---
-    function showTab(tabId) {
-        document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
-
     function getTamilLetters(word) {
         return word.match(/[\u0B80-\u0BFF][\u0BCD\u0BBE-\u0BCC\u0BD7]?/g) || [];
     }
-
+    
     function getRootMei(char) {
         if (UYIR.includes(char)) return null;
         let code = char.charCodeAt(0);
         if (code >= 2965 && code <= 2999) return String.fromCharCode(code) + "்";
         return char;
     }
-
-    function getBaseChar(char) { return char.charAt(0); }
-
-    // --- 3. நூல் மரபு ஆய்வு (BASIC ANALYSIS) ---
-    function analyzeBasic() {
-        const input = document.getElementById('basicInput').value;
-        const resDiv = document.getElementById('basicResults');
-        resDiv.innerHTML = "";
-        if(!input) return;
-
-        let letters = getTamilLetters(input);
-        
-        letters.forEach(char => {
-            let type = "அறியப்படவில்லை";
-            let mathirai = "0";
-            let desc = "";
-
-            if (KURIL.includes(char)) { type = "உயிர் குறில்"; mathirai = "1 (நூற்பா 3)"; }
-            else if (NEDIL.includes(char)) { type = "உயிர் நெடில்"; mathirai = "2 (நூற்பா 4)"; }
-            else if (MEI.includes(char)) {
-                mathirai = "0.5 (அரை - நூற்பா 11)";
-                if (VALLINAM.includes(char)) { type = "வல்லினம்"; desc = "க ச ட த ப ற (நூற்பா 19)"; }
-                else if (MELLINAM.includes(char)) { type = "மெல்லினம்"; desc = "ங ஞ ண ந ம ன (நூற்பா 20)"; }
-                else if (IDAIYINAM.includes(char)) { type = "இடையினம்"; desc = "ய ர ல வ ழ ள (நூற்பா 21)"; }
-            }
-            else if (AYTHAM.includes(char)) { type = "ஆய்தம்"; mathirai = "0.5 (நூற்பா 11)"; }
-            else {
-                // உயிர்மெய்
-                let mei = getRootMei(char);
-                if(mei) {
-                    type = "உயிர்மெய்";
-                    // நூற்பா 10: மெய்யொடு இயையினும் உயிர் இயல் திரியா (உயிரின் மாத்திரையே வரும்)
-                    // நூற்பா 17: மெய் அகரமொடு உயிர்த்தல்
-                    if(char.endsWith('ா') || char.endsWith('ீ') || char.endsWith('ூ') || char.endsWith('ே') || char.endsWith('ை') || char.endsWith('ோ') || char.endsWith('ௌ')) {
-                        mathirai = "2 (நெடில்)";
-                    } else {
-                        mathirai = "1 (குறில்)";
-                    }
-                }
-            }
-
-            let html = `
-                <div class="card">
-                    <h3>${char}</h3>
-                    <div class="data-row"><span class="data-label">வகை:</span> <span class="data-val">${type}</span></div>
-                    <div class="data-row"><span class="data-label">மாத்திரை:</span> <span class="data-val">${mathirai}</span></div>
-                    ${desc ? `<div class="rule-text" style="margin-top:10px; font-size:0.9rem;">${desc}</div>` : ''}
-                </div>`;
-            resDiv.innerHTML += html;
-        });
-    }
-
-    // --- 4. மொழி மரபு ஆய்வு (MOZHI MARABU) ---
-    function analyzeMozhiMarabu() {
-        const input = document.getElementById('mozhiInput').value;
-        const resDiv = document.getElementById('mozhiResults');
-        resDiv.innerHTML = "";
-        if(!input) return;
-
-        let letters = getTamilLetters(input);
-        let first = letters[0];
-        let baseFirst = getBaseChar(first);
-        let firstRoot = getRootMei(first);
-
-        // A. மொழிமுதல் ஆய்வு (Noolpa 26-33)
-        let startCheck = { valid: false, rule: "" };
-        
-        if (UYIR.includes(first)) {
-            startCheck.valid = true; startCheck.rule = "பன்னீர் உயிரும் மொழி முதல் ஆகும் (நூற்பா 26)";
-        } else if (firstRoot) { // Consonant start
-             let root = firstRoot.replace('்', ''); // க, ச...
-             if (["க","த","ந","ப","ம"].includes(root)) {
-                 startCheck.valid = true; startCheck.rule = "க த ந ப ம எல்லா உயிரொடும் வரும் (நூற்பா 28)";
-             } else if (root === "ச") {
-                 startCheck.valid = true; startCheck.rule = "சகரக் கிளவி (நூற்பா 29)"; // (அ,ஐ,ஔ restriction skipped for simplicity/modern)
-             } else if (root === "வ") {
-                 // உ, ஊ, ஒ, ஓ கூடாது (நூற்பா 30)
-                 if(["வு","வூ","வொ","வோ"].includes(first)) { startCheck.valid = false; startCheck.rule = "வ உ ஊ ஒ ஓ வொடு வராது (நூற்பா 30)"; }
-                 else { startCheck.valid = true; startCheck.rule = "வகரக் கிளவி (நூற்பா 30)"; }
-             } else if (root === "ஞ") {
-                 startCheck.valid = true; startCheck.rule = "ஞகாரம் (நூற்பா 31)";
-             } else if (root === "ய") {
-                 if (first === "யா") { startCheck.valid = true; startCheck.rule = "ஆவொடு அல்லது யகரம் முதலாது (நூற்பா 32)"; }
-                 else { startCheck.valid = false; startCheck.rule = "யகரம் 'யா' தவிர முதலாது (தொல்காப்பிய விதி)"; }
-             } else if (["ட","ற","ல","ள","ழ","ண"].includes(root)) {
-                 startCheck.valid = false; startCheck.rule = "ட,ற,ல,ள,ழ,ண மொழி முதல் ஆகா.";
-             }
-        }
-
-        // Output Start Check
-        let html = `<div class="card"><h3>மொழி முதல் ஆய்வு</h3>`;
-        if(startCheck.valid) html += `<div class="rule-item" style="border-color:green;">✓ ${startCheck.rule}</div>`;
-        else html += `<div class="rule-item" style="border-color:red; background:#ffebee;">✗ ${startCheck.rule}</div>`;
-        html += `</div>`;
-
-        // B. மெய்ம்மயக்க ஆய்வு (Clusters) (Nool Marabu 23-30)
-        let clusterHtml = `<div class="card"><h3>மெய்ம்மயக்க ஆய்வு</h3>`;
-        let hasCluster = false;
-        
-        for(let i=0; i<letters.length-1; i++){
-            let curr = letters[i];
-            let next = letters[i+1];
-            
-            if(MEI.includes(curr)) { // புள்ளி எழுத்து
-                hasCluster = true;
-                let nextRoot = getRootMei(next);
-                if(nextRoot) { // Next is also consonant base
-                    // Check rules
-                    if(MEYMAYAKKAM_RULES[curr]) {
-                        if(!MEYMAYAKKAM_RULES[curr].includes(nextRoot)) {
-                            clusterHtml += `<div class="rule-item" style="border-color:red; background:#ffebee;">✗ <b>${curr}</b> உடன் <b>${next}</b> மயங்காது. (நூல் மரபு 23-30)</div>`;
-                        } else {
-                            clusterHtml += `<div class="rule-item" style="border-color:green;">✓ <b>${curr} + ${next}</b>: சரியான மயக்கம்.</div>`;
-                        }
-                    } else {
-                        // ட,ற,ல,ள,ண,ன,ம,ய,ர,ழ,வ,ஞ,ந,ங தவிர வேறு மெய்கள் (க்,ச்,த்,ப்) வேற்று நிலையாய் மயங்காது (நூற்பா 22 - உடனிலை மட்டும்)
-                        if(curr !== nextRoot) {
-                             clusterHtml += `<div class="rule-item" style="border-color:orange;">⚠ <b>${curr}</b> வேற்று மெய்யுடன் மயங்குதல் ஐயத்திற்குரியது (நூல் மரபு 22).</div>`;
-                        }
-                    }
-                }
-            }
-        }
-        if(!hasCluster) clusterHtml += `<div class="rule-text">மெய்ம்மயக்கம் இல்லை.</div>`;
-        clusterHtml += `</div>`;
-
-        resDiv.innerHTML = html + clusterHtml;
-    }
-
-    // --- 5. புணர்ச்சி ஆய்வு (SANDHI) ---
-    // (Previous logic integrated here)
-    function analyzeSandhi() {
-        const text = document.getElementById('sandhiInput').value;
-        const resDiv = document.getElementById('sandhiResults');
-        resDiv.innerHTML = "";
-        if(!text.trim()) return;
-        const words = text.split(/\s+/).filter(w=>w.length>0);
-
-        for (let i = 0; i < words.length - 1; i++) {
-            let w1 = words[i].replace(/[.,;!?)"(]/g, "");
-            let w2 = words[i+1].replace(/[.,;!?)"(]/g, "");
-            let res = checkFullSandhi(w1, w2);
-            if(res) {
-                 resDiv.innerHTML += `
-                    <div class="card">
-                        <div style="font-size:1.2rem; color:var(--primary); font-weight:bold;">${res.w1} + ${res.w2} → <span style="color:var(--success)">${res.res}</span></div>
-                        <div class="rule-text" style="margin-top:5px;">${res.rule}</div>
-                        <span class="sutra-ref">${res.sutra}</span>
-                    </div>`;
-            }
-        }
-    }
-
-    function checkFullSandhi(w1, w2) {
-        let l1 = getTamilLetters(w1);
-        let l2 = getTamilLetters(w2);
-        let last = l1[l1.length-1];
-        let first = l2[0];
-        let firstRoot = getRootMei(first);
-        let isVallinam = VALLINAM.includes(firstRoot);
-
-        // 1. புள்ளி மயங்கியல் (Consonants)
-        if(last==="ண்" && isVallinam) return {w1,w2,res:w1.slice(0,-1)+"ட்"+w2, rule:"ணகர ஈறு டகரமாதல்", sutra:"புள்ளி மயங்கியல் 7"};
-        if(last==="ம்" && isVallinam) return {w1,w2,res:w1.slice(0,-1)+firstRoot+w2, rule:"மகர ஈறு கெட்டு வல்லினம் மிகுதல்", sutra:"புள்ளி மயங்கியல் 15"};
-        if(last==="ல்" && firstRoot==="த்") return {w1,w2,res:w1.slice(0,-1)+"ற்"+"ற"+w2.slice(1), rule:"ல+த = ற்ற", sutra:"புள்ளி மயங்கியல் 71"};
-        
-        // 2. குற்றியலுகரம் (Numbers)
-        if(w2==="பத்து") {
-             if(w1==="ஒன்று") return {w1,w2,res:"ஒருபது", rule:"எண் திரிபு", sutra:"குற்றியலுகரம் 33"};
-             if(w1==="ஒன்பது") return {w1,w2,res:"தொண்ணூறு", rule:"எண் திரிபு (விதிவிலக்கு)", sutra:"குற்றியலுகரம் 39"};
-        }
-        
-        // 3. உயிர் மயங்கியல்
-        if(["பல","சில"].includes(w1) && isVallinam) return {w1,w2,res:w1+firstRoot+w2, rule:"அகர ஈறு வல்லினம் மிகுதல்", sutra:"உயிர் மயங்கியல் 1"};
-        
-        // 4. உருபியல் (ஐ)
-        if(w2==="ஐ" && w1==="மரம்") return {w1,w2,res:"மரத்தை", rule:"அத்துச் சாரியை", sutra:"உருபியல் 13"};
-
+    
+    function getEndingUyir(char) {
+        if(UYIR.includes(char)) return char;
+        const suffixes = { "ா": "ஆ", "ி": "இ", "ீ": "ஈ", "ு": "உ", "ூ": "ஊ", "ெ": "எ", "ே": "ஏ", "ை": "ஐ", "ொ": "ஒ", "ோ": "ஓ", "ௌ": "ஔ" };
+        for (let s in suffixes) if(char.endsWith(s)) return suffixes[s];
+        if(!char.includes("்")) return "அ";
         return null;
     }
 
-    // --- 6. பிறப்பியல் (PHONETICS) ---
-    function analyzePirappiyal() {
-        // (Logic same as previous version - Data driven)
-        // For brevity, using placeholder logic mapped to previous constants
-        // Assuming PIRAPPIYAL_DATA exists (copied from previous response)
-        const text = document.getElementById('pirappuInput').value;
-        const resDiv = document.getElementById('pirappuResults');
-        resDiv.innerHTML = "";
+    // --- 3. முதன்மைச் செயல்பாடு (Correction Logic) ---
+    function correctText() {
+        const text = document.getElementById('inputText').value;
+        if(!text.trim()) return;
+
+        // வரிகளைப் பிரித்தல்
+        // (குறிப்பு: முற்றுப்புள்ளி, கமா போன்றவற்றைத் தனியாகக் கையாள வேண்டும்)
+        // எளிமைக்காக சொற்களாகப் பிரிக்கிறோம்.
         
-        // Simplified Logic for Demo
-        let letters = getTamilLetters(text);
-        letters.forEach(char => {
-            let mei = getRootMei(char) || char;
-            // Define rules map here or use global
-             const RULES = {
-                "அ": "வாய் அங்காந்து (திறந்து) இயலும். (நூற்பா 3)",
-                "ஆ": "வாய் அங்காந்து (திறந்து) இயலும். (நூற்பா 3)",
-                "இ": "வாய் அங்காத்தல் + நாவிளிம்பு பல்லைத் தொடுதல். (நூற்பா 4)",
-                "உ": "இதழ் குவிந்து இயலும். (நூற்பா 5)",
-                "க்": "முதல் நா, முதல் அண்ணத்தை ஒற்றப் பிறக்கும். (நூற்பா 7)",
-                "ச்": "இடை நா, இடை அண்ணத்தை ஒற்றப் பிறக்கும். (நூற்பா 8)",
-                "ட்": "நுனி நா, நுனி அண்ணத்தை ஒற்றப் பிறக்கும். (நூற்பா 9)",
-                "த்": "நா நுனி பரந்து, பல்லின் அடியை ஒற்றப் பிறக்கும். (நூற்பா 11)",
-                "ப்": "இதழ் இரண்டும் இயையப் (ஒட்ட) பிறக்கும். (நூற்பா 15)",
-                "ம்": "இதழ் இரண்டும் இயைய (மூக்கு வளியுடன்). (நூற்பா 15, 18)"
-            };
+        // Split text but keep delimiters to reconstruct later
+        // This regex splits by spaces but captures newlines/punctuation roughly
+        let tokens = text.split(/(\s+|[.,;!?])/).filter(t => t.length > 0);
+        
+        let processedTokens = [];
+        let reports = [];
+        
+        // Iterate tokens to check pairs
+        for (let i = 0; i < tokens.length; i++) {
+            let curr = tokens[i];
+            let next = (i + 2 < tokens.length) ? tokens[i+2] : null; // i+1 is space/punctuation usually
+            let separator = (i + 1 < tokens.length) ? tokens[i+1] : "";
             
-            if(RULES[mei] || RULES[char]) {
-                let info = RULES[mei] || RULES[char];
-                resDiv.innerHTML += `
-                <div class="char-card">
-                    <span class="char-big">${char}</span>
-                    <div class="char-info">${info}</div>
-                </div>`;
+            // Skip non-word tokens for analysis but keep them in output
+            if (!isTamilWord(curr)) {
+                processedTokens.push({ text: curr, type: 'asis' });
+                continue;
             }
-        });
+            
+            // 1. தனிச்சொல் பிழை ஆய்வு (Spelling/Phonotactics)
+            let spellCheck = checkSpelling(curr);
+            if(spellCheck.error) {
+                processedTokens.push({ text: curr, type: 'error', suggestion: spellCheck.suggestion, msg: spellCheck.msg });
+                reports.push({ word: curr, msg: spellCheck.msg, type: "spelling" });
+                
+                // If it's the last word or separator isn't space, move on
+                if (!separator.match(/^\s+$/)) { 
+                    processedTokens.push({ text: separator, type: 'asis' });
+                    // i++ handled by loop but we need to verify logic structure
+                }
+                continue; // Skip sandhi check for misspelled word
+            }
+
+            // 2. புணர்ச்சிப் பிழை ஆய்வு (Sandhi Check) with Next Word
+            if (next && isTamilWord(next) && separator.match(/^\s+$/)) {
+                let sandhiFix = checkSandhiCorrection(curr, next);
+                
+                if (sandhiFix) {
+                    // புணர்ச்சி தேவைப்படும் இடம்!
+                    // நாம் இரண்டு சொற்களையும் சேர்த்து அல்லது முதல் சொல்லில் மாற்றம் செய்து காட்ட வேண்டும்.
+                    processedTokens.push({ text: sandhiFix.newW1, type: 'corrected', original: curr, msg: sandhiFix.rule });
+                    reports.push({ word: `${curr} + ${next}`, msg: sandhiFix.rule, type: "sandhi" });
+                    
+                    // Separator might need removal if words merged (e.g. மரத்தை)
+                    // But usually Sandhi inserts space or char.
+                    // For Vallinam Miguthal (அந்தப் பையன்), we modify W1 to include 'ப்'.
+                    
+                    processedTokens.push({ text: separator, type: 'asis' });
+                } else {
+                    processedTokens.push({ text: curr, type: 'valid' });
+                    processedTokens.push({ text: separator, type: 'asis' });
+                }
+                i++; // Skip separator in next iteration check (already pushed)
+            } else {
+                processedTokens.push({ text: curr, type: 'valid' });
+                // If next token is not a word or no next token, push separator if exists
+                 if ((i + 1 < tokens.length) && !processedTokens[processedTokens.length-1].text.match(/^\s+$/)) {
+                     // Check if we haven't pushed separator yet
+                     // Logic gap: The loop iterates ALL tokens.
+                     // Let's refine: The loop needs to handle just words and peek ahead.
+                     // This simple loop is tricky. Let's revert to a simpler Word-by-Word reconstruction.
+                 }
+            }
+        }
+        
+        // Re-Build Display (Simpler Logic applied below for robustness)
+        rebuildAndDisplay(text);
+    }
+
+    // --- மேம்படுத்தப்பட்ட லாஜிக் (Better Logic Flow) ---
+    function rebuildAndDisplay(rawText) {
+        const reportDiv = document.getElementById('reportList');
+        const outputDiv = document.getElementById('correctedText');
+        document.querySelector('.output-section').classList.add('active');
+        
+        reportDiv.innerHTML = "";
+        outputDiv.innerHTML = "";
+
+        // Split keeping delimiters to preserve structure
+        let parts = rawText.split(/([\s.,;!?]+)/);
+        let correctedHTML = "";
+        
+        for (let i = 0; i < parts.length; i++) {
+            let w1 = parts[i];
+            
+            // Skip delimiters
+            if (!isTamilWord(w1)) {
+                correctedHTML += w1;
+                continue;
+            }
+
+            // Check Spelling First
+            let spell = checkSpelling(w1);
+            if (spell.error) {
+                correctedHTML += `<span title="${spell.msg}" style="color:red; text-decoration:underline wavy;">${w1}</span>`;
+                addReport(w1, spell.msg, "badge-spell");
+                continue;
+            }
+
+            // Check Sandhi with next word
+            let nextPartIndex = i + 2; // i+1 is delimiter
+            if (nextPartIndex < parts.length) {
+                let delimiter = parts[i+1];
+                let w2 = parts[nextPartIndex];
+                
+                if (isTamilWord(w2) && delimiter.trim() === "") { // Only check if space separates
+                    let fix = checkSandhiCorrection(w1, w2);
+                    if (fix) {
+                        // Apply fix
+                        // Show change: "அந்த" -> "அந்தப்"
+                        correctedHTML += `<span class="correction" title="${fix.rule}">${fix.newW1}</span>`;
+                        addReport(`${w1} + ${w2}`, `${fix.rule} (${fix.sutra})`, "badge-sandhi");
+                        continue; 
+                    }
+                }
+            }
+            
+            // No error
+            correctedHTML += w1;
+        }
+        
+        outputDiv.innerHTML = correctedHTML;
+        if(reportDiv.innerHTML === "") reportDiv.innerHTML = "<i>பிழைகள் ஏதும் காணப்படவில்லை.</i>";
+    }
+
+    function addReport(target, msg, badgeClass) {
+        const div = document.getElementById('reportList');
+        div.innerHTML += `
+            <div class="rule-item">
+                <b>${target}</b>: ${msg} 
+                <span class="badge ${badgeClass}">${badgeClass.includes('sandhi') ? 'புணர்ச்சி' : 'சொற்பிழை'}</span>
+            </div>`;
+    }
+
+    function isTamilWord(str) {
+        // Basic check if string contains Tamil characters
+        return /[\u0B80-\u0BFF]/.test(str);
+    }
+
+    // --- 4. பிழை ஆய்வு விதிகள் (Rules Engine) ---
+
+    // அ. சொற்பிழை ஆய்வு (Spelling)
+    function checkSpelling(word) {
+        let letters = getTamilLetters(word);
+        if(letters.length === 0) return { error: false };
+        let first = letters[0];
+        let last = letters[letters.length-1];
+        let rootFirst = getRootMei(first);
+
+        // 1. மொழிமுதல் பிழை (ட, ற, ல, ள, ண...)
+        if (rootFirst) {
+            let r = rootFirst.replace('்','');
+            if (["ட", "ற", "ல", "ள", "ழ", "ண", "ன"].includes(r)) {
+                return { error: true, msg: `'${r}' எழுத்தில் சொல் தொடங்காது.` };
+            }
+        }
+
+        // 2. மொழியிறுதி பிழை (வல்லினம்)
+        if (VALLINAM.includes(last)) {
+            return { error: true, msg: `'${last}' (வல்லின மெய்) எழுத்தில் சொல் முடியக்கூடாது.` };
+        }
+
+        // 3. மெய்ம்மயக்கம் (எளிய சோதனை)
+        for(let j=0; j<letters.length-1; j++){
+            let c = letters[j];
+            let n = letters[j+1];
+            if(c.includes('்')) {
+                // ட் முன் க,ச,ப வரலாம். வேறு வந்தால் பிழை.
+                if(c === "ட்" && !["க்","ச்","ப்","ட்"].includes(getRootMei(n))) 
+                    return { error: true, msg: `ட் மெய்க்குப் பின் '${n}' வராது.` };
+                // ற் முன் க,ச,ப வரலாம்.
+                if(c === "ற்" && !["க்","ச்","ப்","ற்"].includes(getRootMei(n))) 
+                    return { error: true, msg: `ற் மெய்க்குப் பின் '${n}' வராது.` };
+            }
+        }
+
+        return { error: false };
+    }
+
+    // ஆ. புணர்ச்சி/சந்தி பிழை ஆய்வு (Sandhi Correction)
+    function checkSandhiCorrection(w1, w2) {
+        let l1 = getTamilLetters(w1);
+        let l2 = getTamilLetters(w2);
+        let last = l1[l1.length-1];
+        let endUyir = getEndingUyir(last);
+        let first = l2[0];
+        let firstRoot = getRootMei(first);
+        
+        if (!VALLINAM.includes(firstRoot)) return null; // Only modify if next word starts with Vallinam
+
+        // 1. வல்லினம் மிகும் இடங்கள் (Hard Consonant Doubling)
+        
+        // அ. சுட்டு/வினா/வினையெச்சம் (அந்த, இந்த, அங்கே, ஓட, தேட...)
+        // Check if w1 is in the trigger list OR ends in specific vowels with grammatical context
+        
+        let needsDoubling = false;
+        let ruleDesc = "";
+        let sutraRef = "";
+
+        // List Check
+        if (VALLINAM_MIGUM_WORDS.includes(w1)) {
+            needsDoubling = true;
+            ruleDesc = `'${w1}' அடுத்து வல்லினம் மிகும்.`;
+            sutraRef = "உயிர் மயங்கியல்";
+        }
+        // இகர ஈற்று வினையெச்சம் (ஓடி, பாடி, தேடி)
+        else if (endUyir === "இ" && !["இன்றி", "அன்றி"].includes(w1) && w1.length > 2) {
+             // Heuristic: Multi-syllable 'i' ending is likely Vinaiyecham
+             needsDoubling = true; 
+             ruleDesc = "இகர ஈற்று வினையெச்சம் வல்லினம் மிகும்.";
+             sutraRef = "உயிர் மயங்கியல் 33";
+        }
+        // குற்றியலுகரம் (வன்தொடர்/மென்தொடர்)
+        // எ.கா: படித்து + பார்த்தான் -> படித்துப்பார்த்தான்
+        // எ.கா: கொக்கு + கால் -> கொக்குக்கால்
+        else if (["கு","சு","டு","து","பு","று"].includes(last) && l1.length > 1) {
+             // Simple heuristic: assume doubling is needed for most common Kutriyalugaram words in sentence context
+             needsDoubling = true;
+             ruleDesc = "குற்றியலுகரத்தின் பின் வல்லினம் மிகும்.";
+             sutraRef = "குற்றியலுகரம் 21";
+        }
+        // இரண்டாம்/நான்காம் வேற்றுமை (ஐ, கு)
+        else if (last === "ஐ" || last === "கு") { // Direct ending (rarely used alone) or words ending with markers
+             // Heuristic: If word ends in 'ai' or 'ku' sound
+             needsDoubling = true;
+             ruleDesc = "வேற்றுமை உருபு (ஐ/கு) விரிந்த இடத்தில் வல்லினம் மிகும்.";
+             sutraRef = "உயிர் மயங்கியல் 78";
+        }
+        else if (endUyir === "ஐ") { // பனை + மரம் -> பனைமரம் (No doubling). But யானை + படை -> யானைப்படை.
+            // Context sensitive. Defaulting to Suggest Doubling for noun+noun valid cases.
+            // Let's require user verification or stick to high confidence rules.
+            // For this tool, let's suggest it.
+            needsDoubling = true;
+            ruleDesc = "ஐகார ஈற்றில் வல்லினம் மிகும்.";
+        }
+
+        // Apply Correction
+        if (needsDoubling) {
+            // Check if already doubled (User typed "அந்தப் பையன்")
+            // No, the tokens are split. w1="அந்த", w2="பையன்".
+            // We need to output "அந்தப்".
+            
+            // However, sometimes user types "அந்த பையன்" (Missing).
+            // Sometimes user types "அந்தப் பையன்" (Correct). 
+            // If user typed "அந்தப்", l1 last char is 'ப்'.
+            
+            if (last === firstRoot) {
+                return null; // Already correct (அந்தப் + பையன்)
+            } else {
+                return {
+                    newW1: w1 + firstRoot, // அந்த + ப் = அந்தப்
+                    rule: ruleDesc,
+                    sutra: sutraRef
+                };
+            }
+        }
+
+        // 2. மகர ஈறு கெடுதல் (மரம் + கிளை -> மரக்கிளை)
+        if (last === "ம்") {
+            // Remove 'm' and add 'k' (firstRoot)
+            let base = w1.slice(0, -1);
+            return {
+                newW1: base + firstRoot,
+                rule: "மகர ஈறு கெட்டு வல்லினம் மிகும் (மரம்+கிளை -> மரக்கிளை).",
+                sutra: "புள்ளி மயங்கியல் 15"
+            };
+        }
+
+        return null;
     }
 
 </script>
